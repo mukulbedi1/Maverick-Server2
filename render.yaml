@@ -1,4 +1,12 @@
-build:
-  environment:
-    - name: PYTHON_VERSION
-      value: 3.10.12
+services:
+  - type: web
+    name: mediapipe-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: HUGGING_FACE_MODEL
+        value: parasahuja23/vit-base-patch16-224-in21k-finetuned-final-2.0
