@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: mediapipe-backend
+    name: flask-server
     env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    runtime: python
+    pythonVersion: 3.10.12
+    region: oregon  # or keep your preferred region
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.12
-      - key: HUGGING_FACE_MODEL
-        value: parasahuja23/vit-base-patch16-224-in21k-finetuned-final-2.0
