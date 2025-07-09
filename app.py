@@ -41,22 +41,16 @@ mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
-# Thread safety lock for processing frames
 frame_lock = Lock()
 
-# Black canvas dimensions
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-# Path to save facial feature logs
 CSV_FILE = "facial_features_log.csv"
-
-# Directory to save output frames
 OUTPUT_DIR = "output"
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
-# Helper functions for geometric calculations
 def calculate_distance(point1, point2):
     return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
@@ -64,12 +58,11 @@ def calculate_angle(point1, point2, point3):
     a = calculate_distance(point2, point3)
     b = calculate_distance(point1, point3)
     c = calculate_distance(point1, point2)
-    if a * b == 0:  # Prevent division by zero
+    if a * b == 0:
         return 0
     angle = math.acos((a**2 + b**2 - c**2) / (2 * a * b))
     return math.degrees(angle)
 
-# Analyze facial landmarks
 def analyze_face(face_landmarks, image_width, image_height):
     def get_landmark(landmark_index):
         x = face_landmarks.landmark[landmark_index].x * image_width
@@ -106,7 +99,6 @@ def analyze_face(face_landmarks, image_width, image_height):
         "horizontal_tilt": horizontal_tilt,
     }
 
-# Save analyzed features to CSV
 def save_features_to_csv(features, image_path="Live Frame"):
     file_exists = os.path.isfile(CSV_FILE)
     headers = [
@@ -132,7 +124,6 @@ def save_features_to_csv(features, image_path="Live Frame"):
             "Horizontal Tilt": features.get("horizontal_tilt", "N/A"),
         })
 
-# Process an individual frame
 def process_frame(image):
     with mp_holistic.Holistic(static_image_mode=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -158,7 +149,6 @@ def process_frame(image):
 
         return results, black_canvas
 
-# Socket.IO event for frame processing
 @socketio.on('process_frame')
 def handle_frame(frame_data):
     if not frame_lock.acquire(blocking=False):
@@ -202,12 +192,11 @@ def handle_frame(frame_data):
     finally:
         frame_lock.release()
 
-# Main route
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Run with eventlet for production
+# ✅ CORRECTED: Start the app properly using socketio.run()
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', port)), app)
+    socketio.run(app, host='0.0.0.0', port=port)
