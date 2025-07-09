@@ -1,3 +1,6 @@
+import eventlet.wsgi
+eventlet.monkey_patch()  # Ensure compatibility with Flask-SocketIO
+
 import os
 import io
 import base64
@@ -15,9 +18,6 @@ import csv
 import time
 from dotenv import load_dotenv
 import eventlet
-import eventlet.wsgi
-
-eventlet.monkey_patch()  # Ensure compatibility with Flask-SocketIO
 
 # Load environment variables from the .env file
 load_dotenv()
